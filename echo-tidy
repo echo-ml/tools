@@ -1,0 +1,81 @@
+#!/bin/bash -
+
+OPT_FIX=false
+
+while test $# -gt 0
+do
+  case "$1" in
+    -f) OPT_FIX=true
+    ;;
+    -*) 
+    echo "bad option "$1""
+    exit 1
+    ;;
+    *)
+    break
+    ;;
+  esac
+  shift
+done
+
+FILES=$@
+
+##############
+# FIX CHECKS #
+##############
+
+FIX_CHECK_LIST=( 
+  google-readability-namespace-comments 
+  google-readability-casting
+  google-readability-redundant-smartptr-get
+  misc-static-assert
+  misc-uniqueptr-reset-release
+  misc-use-override
+  readability-container-size-empty
+  readability-shrink-to-fit
+)
+FIX_CHECKS1=$(printf ",%s" "${FIX_CHECK_LIST[@]}")
+FIX_CHECKS=${FIX_CHECKS1:1}
+
+##################
+# WARNING CHECKS #
+##################
+
+WARNING_CHECK_LIST=( 
+  google-explicit-constructor 
+  google-build-namespaces
+  google-runtime-member-string-references
+  google-global-names-in-headers
+  google-runtime-memset
+  misc-assert-side-effect
+  misc-bool-pointer-implicit-conversion
+  misc-assign-operator-signature
+  misc-inaccurate-erase
+  misc-swapped-arguments
+  misc-undelegated-constructor
+  misc-unused-raii
+  readability-redundant-string-cstr
+)
+WARNING_CHECKS1=$(printf ",%s" "${WARNING_CHECK_LIST[@]}")
+WARNING_CHECKS=${WARNING_CHECKS1:1}
+
+###############
+# RUN COMMAND #
+###############
+
+INCLUDE_PATH=-I${PWD%/echo*}
+CXXFLAGS="-std=c++1y -stdlib=libc++"
+SYSTEM_INCLUDES1=($(clang++ -stdlib=libc++ \
+  -std=c++1y -E -x c++ - -v < /dev/null |& grep "^ /" | cut -c 2-))
+SYSTEM_INCLUDES=$(printf " -I%s" "${SYSTEM_INCLUDES1[@]}")
+INCLUDES="${INCLUDE_PATH} ${SYSTEM_INCLUDES}"
+
+CHECK_OPT=-config="{CheckOptions: [{key: google-readability-namespace-comments.ShortNamespaceLines value: 0}]}"
+
+if [ "$OPT_FIX" = true ]; then
+  clang-tidy -fix -config="{CheckOptions: [{key: google-readability-namespace-comments.ShortNamespaceLines, value: 0}]}" ${FILES} -checks="-*,${FIX_CHECKS}" \
+      -- -x c++ ${INCLUDES} ${CXXFLAGS}
+else
+  clang-tidy ${FILES} -config="{CheckOptions: [{key: google-readability-namespace-comments.ShortNamespaceLines, value: 0}]}" -checks="-*,${WARNING_CHECKS},${FIX_CHECKS}" \
+      -- -x c++ ${INCLUDES} ${CXXFLAGS}
+fi
