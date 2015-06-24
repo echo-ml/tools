@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 if(WIN32 AND NOT CYGWIN)                                                           
   set(DEF_INSTALL_CMAKE_DIR CMake)                                                 
 else()                                                                             
-  set(DEF_INSTALL_CMAKE_DIR lib/cmake/EchoExecutionContext)                        
+  set(DEF_INSTALL_CMAKE_DIR lib/cmake/Echo)
 endif()                                                                            
 set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH                          
   "Installation directory for CMake files")
