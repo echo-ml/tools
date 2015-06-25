@@ -16,7 +16,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       -Wno-missing-prototypes \
       -Wno-sign-compare \
       -Wno-weak-vtables \
-      -Wno-macro-redefined")
+      -Wno-macro-redefined \
+      -Wno-switch-enum \
+      -Wno-global-constructors \
+      -Wno-source-uses-openmp")
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
