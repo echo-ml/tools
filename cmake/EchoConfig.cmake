@@ -13,7 +13,8 @@ function(ECHO_ADD_TEST TARGET)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp
       COMMAND printf "\"#define\\tCATCH_CONFIG_MAIN\\n#include<catch.hpp>\"" 
       > ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp)
-    add_executable(${TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp ${ARGN})
+    add_executable(${TARGET} EXCLUDE_FROM_ALL 
+        ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp ${ARGN})
     add_test(${TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})
   endif()
 endfunction()
@@ -37,7 +38,8 @@ function(ECHO_ADD_BENCHMARK TARGET)
       COMMAND printf "\"#define\\tTOUCHSTONE_CONFIG_MAIN\\n\
 #include<touchstone/touchstone.h>\""
       > ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp)
-    add_executable(${TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp ${ARGN})
+    add_executable(${TARGET} EXCLUDE_FROM_ALL 
+        ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.cpp ${ARGN})
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")                                 
       set(NATIVE_FLAG "-march=native")                                               
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")                               
@@ -45,7 +47,8 @@ function(ECHO_ADD_BENCHMARK TARGET)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")                             
       set(NATIVE_FLAG "-xHost")                                                      
     endif()                                                                          
-    set_TARGET_properties(${TARGET} PROPERTIES COMPILE_FLAGS "-O3 ${NATIVE_FLAG}")
+    set_TARGET_properties(${TARGET} 
+        PROPERTIES COMPILE_FLAGS "-O3 -DNDEBUG ${NATIVE_FLAG}")
   endif()
 endfunction()
 
